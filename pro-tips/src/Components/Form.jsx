@@ -56,26 +56,31 @@ export default function Forms() {
   const formSubmitHandler = (e) => {
     e.preventDefault();
 
-    // console.log(formData);
-
     let errors = validate(formData);
     setFormError(errors);
 
     let errKeyArray = Object.keys(errors);
-    if (errKeyArray.length == 0) {
+    if (errKeyArray.length === 0) {
       setFormSubmit(true);
       toast.success("Form Submitted", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+        // ... (unchanged options)
       });
     } else {
       setFormSubmit(false);
+
+      // Display error toasts
+      errKeyArray.forEach((key) => {
+        toast.error(errors[key], {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
     }
   };
 
@@ -89,32 +94,22 @@ export default function Forms() {
     if (data.lastName.trim() == "") {
       err.lastName = "Please enter your Last Name";
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (data.email.trim() == "") {
       err.email = "Please enter your Email";
+    }else if (!emailRegex.test(data.email.trim())) {
+      err.email = "Please enter a valid Email with @ and a official domain";
     }
     if (data.phone.trim() == "") {
       err.phone = "Please enter your Phone Number";
+    }else if (data.phone.trim().length != 10) {
+      err.phone = "Please enter 10-digit Phone Number";
     }
-    if (data.phone.trim().length != 10) {
-      err.phoneLength = "Please enter 10-digit Phone Number";
-    }
+    
 
     return err;
   };
 
-  const phoneErrorHandler = ()=>{
-    if(formError.phone){
-      return(
-        <p className="err">Enter Your Phone Number</p>
-      )
-    }else if (formError.phoneLength){
-      return(
-        <p className="err">Enter 10-Digit Phone Number</p>
-      )
-    }else{
-      return("")
-    }
-  }
 
   return (
     <div id="form">
@@ -134,7 +129,7 @@ export default function Forms() {
             <label> First Name : </label>
             <input type="text" name="firstName" onChange={handleInputChange} />
             {formError.firstName ? (
-              <p className="err">Enter Your First Name</p>
+              <p className="err">{formError.firstName}</p>
             ) : (
               ""
             )}
@@ -144,7 +139,7 @@ export default function Forms() {
             <label> Last Name : </label>
             <input type="text" name="lastName" onChange={handleInputChange} />
             {formError.lastName ? (
-              <p className="err">Enter Your Last Name</p>
+              <p className="err">{formError.lastName}</p>
             ) : (
               ""
             )}
@@ -153,13 +148,13 @@ export default function Forms() {
           <div>
             <label> Email : </label>
             <input type="email" name="email" onChange={handleInputChange} />
-            {formError.email ? <p className="err">Enter Your Email</p> : ""}
+            {formError.email ? <p className="err">{formError.email}</p> : ""}
           </div>
 
           <div>
             <label> Phone : </label>
             <input type="number" name="phone" onChange={handleInputChange} />
-            {phoneErrorHandler()}
+            {formError.phone ? <p className="err">{formError.phone}</p> : ""}
           </div>
 
           <div>
